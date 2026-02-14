@@ -1,0 +1,33 @@
+{
+    "config": {
+        "step": {
+            "user": {
+                "title": "Instalação do Maya Knox",
+                "description": "Defina as áreas de segurança iniciais.",
+                "data": {
+                    "sensores_perimetro": "Zona Externa (Câmeras Frigate / Portões)",
+                    "sensores_internos": "Zona Interna (Sensores de Presença)",
+                    "moradores": "Celulares para Rastreador GPS",
+                    "ativar_auto_armar": "Armar sistema automaticamente ao sair?"
+                }
+            }
+        },
+        "abort": {
+            "single_instance_allowed": "O Maya Knox já está instalado! Para alterar as zonas, clique no botão 'Configurar' na página da integração."
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "title": "Painel de Configuração Maya Knox",
+                "description": "Adicione ou remova sensores das zonas de alarme. O sistema será reiniciado automaticamente.",
+                "data": {
+                    "sensores_perimetro": "Zona Externa (Câmeras / Portões)",
+                    "sensores_internos": "Zona Interna (Sensores de Presença)",
+                    "moradores": "Celulares para Rastreador GPS",
+                    "ativar_auto_armar": "Armar sistema automaticamente ao sair?"
+                }
+            }
+        }
+    }
+}
