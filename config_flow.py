@@ -1,67 +1,40 @@
 import voluptuous as vol
-from homeassistant import config_entries
+from homeassistant.config_entries import ConfigEntry, ConfigFlow, OptionsFlow
 from homeassistant.core import callback
 from homeassistant.helpers import selector
 
 DOMAIN = "maya_knox"
 
-class MayaKnoxOptionsFlowHandler(config_entries.OptionsFlow):
-    """Painel Contínuo de Edição de Zonas (Botão Configurar)."""
-
-    def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
-        self.config_entry = config_entry
+class MayaKnoxOptionsFlowHandler(OptionsFlow):
+    def __init__(self, config_entry: ConfigEntry) -> None:
+        self._entry = config_entry
 
     async def async_step_init(self, user_input=None):
-        if user_input is not None:
-            return self.async_create_entry(title="", data=user_input)
+        if user_input is not None: return self.async_create_entry(title="", data=user_input)
+        opcoes = self._entry.options or self._entry.data
+        return self.async_show_form(step_id="init", data_schema=self._get_schema(opcoes))
 
-        # Busca os dados atuais de forma segura
-        opcoes = self.config_entry.options or self.config_entry.data
-
-        data_schema = vol.Schema({
-            vol.Required("sensores_perimetro", default=opcoes.get("sensores_perimetro", [])): selector.EntitySelector(
-                selector.EntitySelectorConfig(multiple=True, domain=["binary_sensor", "camera"])
-            ),
-            vol.Required("sensores_internos", default=opcoes.get("sensores_internos", [])): selector.EntitySelector(
-                selector.EntitySelectorConfig(multiple=True, domain="binary_sensor")
-            ),
-            vol.Required("moradores", default=opcoes.get("moradores", [])): selector.EntitySelector(
-                selector.EntitySelectorConfig(multiple=True, domain="person")
-            ),
-            vol.Optional("ativar_auto_armar", default=opcoes.get("ativar_auto_armar", True)): selector.BooleanSelector()
+    def _get_schema(self, defaults):
+        return vol.Schema({
+            vol.Required("sensores_perimetro", default=defaults.get("sensores_perimetro", [])): selector.EntitySelector(selector.EntitySelectorConfig(multiple=True, domain=["binary_sensor", "camera"])),
+            vol.Required("sensores_internos", default=defaults.get("sensores_internos", [])): selector.EntitySelector(selector.EntitySelectorConfig(multiple=True, domain="binary_sensor")),
+            vol.Optional("sensor_campainha", default=defaults.get("sensor_campainha", [])): selector.EntitySelector(selector.EntitySelectorConfig(multiple=True, domain=["binary_sensor", "sensor"])),
+            vol.Required("sirene", default=defaults.get("sirene", [])): selector.EntitySelector(selector.EntitySelectorConfig(multiple=True, domain=["switch", "siren", "light"])),
+            vol.Required("moradores", default=defaults.get("moradores", [])): selector.EntitySelector(selector.EntitySelectorConfig(multiple=True, domain="person")),
+            vol.Optional("notify_service_name", default=defaults.get("notify_service_name", "notify.notify")): selector.TextSelector(),
+            vol.Optional("alexa_notify_service", default=defaults.get("alexa_notify_service", "")): selector.TextSelector(),
+            vol.Optional("alexa_msg_campainha", default=defaults.get("alexa_msg_campainha", "Atenção, campainha acionada.")): str,
+            vol.Optional("alexa_msg_alarme", default=defaults.get("alexa_msg_alarme", "Atenção, o alarme foi disparado! {msg}")): str,
+            vol.Optional("ativar_auto_armar", default=defaults.get("ativar_auto_armar", True)): selector.BooleanSelector()
         })
 
-        return self.async_show_form(step_id="init", data_schema=data_schema)
-
-
-class MayaKnoxConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
-    """Interface de Instalação Inicial do Maya Knox."""
+class MayaKnoxConfigFlow(ConfigFlow, domain=DOMAIN):
     VERSION = 1
-
     @staticmethod
     @callback
-    def async_get_options_flow(config_entry):
-        return MayaKnoxOptionsFlowHandler(config_entry)
+    def async_get_options_flow(config_entry): return MayaKnoxOptionsFlowHandler(config_entry)
 
     async def async_step_user(self, user_input=None):
-        # TRAVA DE SEGURANÇA: Impede que o cliente tente instalar de novo se já existir
-        if self._async_current_entries():
-            return self.async_abort(reason="single_instance_allowed")
-
-        if user_input is not None:
-            return self.async_create_entry(title="Central Maya Knox", data=user_input)
-
-        data_schema = vol.Schema({
-            vol.Required("sensores_perimetro"): selector.EntitySelector(
-                selector.EntitySelectorConfig(multiple=True, domain=["binary_sensor", "camera"])
-            ),
-            vol.Required("sensores_internos"): selector.EntitySelector(
-                selector.EntitySelectorConfig(multiple=True, domain="binary_sensor")
-            ),
-            vol.Required("moradores"): selector.EntitySelector(
-                selector.EntitySelectorConfig(multiple=True, domain="person")
-            ),
-            vol.Optional("ativar_auto_armar", default=True): selector.BooleanSelector()
-        })
-        
-        return self.async_show_form(step_id="user", data_schema=data_schema)
+        if self._async_current_entries(): return self.async_abort(reason="single_instance_allowed")
+        if user_input is not None: return self.async_create_entry(title="Central Maya Knox", data=user_input)
+        return self.async_show_form(step_id="user", data_schema=MayaKnoxOptionsFlowHandler(None)._get_schema({}))

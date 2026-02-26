@@ -7,7 +7,9 @@
                 "data": {
                     "sensores_perimetro": "Zona Externa (Câmeras Frigate / Portões)",
                     "sensores_internos": "Zona Interna (Sensores de Presença)",
+                    "sensor_campainha": "Sensores de Campainha (ex: Zona do Portão)",
                     "moradores": "Celulares para Rastreador GPS",
+                    "notify_service_name": "Serviço de Notificação (ex: notify.mobile_app_iphone)",
                     "ativar_auto_armar": "Armar sistema automaticamente ao sair?"
                 }
             }
@@ -24,7 +26,9 @@
                 "data": {
                     "sensores_perimetro": "Zona Externa (Câmeras / Portões)",
                     "sensores_internos": "Zona Interna (Sensores de Presença)",
+                    "sensor_campainha": "Sensores de Campainha (ex: Zona do Portão)",
                     "moradores": "Celulares para Rastreador GPS",
+                    "notify_service_name": "Serviço de Notificação (ex: notify.mobile_app_iphone)",
                     "ativar_auto_armar": "Armar sistema automaticamente ao sair?"
                 }
             }

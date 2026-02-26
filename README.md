@@ -28,14 +28,14 @@
     *   **Moradores**: Selecione as pessoas para rastreamento de presença.
     *   **Ativar Armar Automático**: Se ativado, o sistema armará automaticamente (Ausente) quando todos os moradores saírem e desarmará quando o primeiro chegar.
 
-##  Cartão Frontend (Lovelace)
+## Cartão Frontend (Lovelace)
 
 O componente inclui um cartão personalizado para exibir o status do alarme.
 
 ### Adicionando o Recurso
 
 O recurso deve ser adicionado automaticamente. Se não for, adicione manualmente em **Painéis** > **Três pontos** > **Recursos**:
-*   URL: /local/maya-knox-card.js
+*   URL: /maya_knox_www/maya-knox-card.js
 *   Tipo: JavaScript Module
 
 ### Exemplo de Uso no Dashboard
@@ -46,7 +46,7 @@ entity: alarm_control_panel.maya_knox_alarm
 name: Alarme Principal
 `
 
-##  Como Funciona (Arquitetura)
+## Como Funciona (Arquitetura)
 
 O sistema é composto por três partes principais que interagem entre si:
 
