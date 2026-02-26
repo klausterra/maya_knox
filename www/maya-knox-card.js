@@ -5,7 +5,7 @@ class MayaKnoxCard extends HTMLElement {
     const entityId = this.config.entity;
     const state = hass.states[entityId];
     const name = this.config.name || "Maya Knox";
-    const logoUrl = "/maya_knox_assets/icon.png?v=10";
+    const logoUrl = "/maya_knox_assets/logo.png?v=10";
 
     if (!this.content) {
       this.innerHTML = `
