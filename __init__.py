@@ -24,13 +24,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     try:
         component_path = os.path.dirname(__file__)
         www_path = os.path.join(component_path, "www")
-        assets_path = os.path.join(component_path, "assets")
+        brand_path = os.path.join(component_path, "brand")
         _LOGGER.info(f"Maya Knox: Registrando caminhos estáticos em {www_path}")
         
         await hass.http.async_register_static_paths(
             [
                 StaticPathConfig(url_path="/maya_knox_www", path=www_path, cache_headers=False),
-                StaticPathConfig(url_path="/maya_knox_assets", path=assets_path, cache_headers=True),
+                StaticPathConfig(url_path="/maya_knox_assets", path=brand_path, cache_headers=True),
             ]
         )
     except Exception as e:
