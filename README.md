@@ -1,70 +1,65 @@
 ﻿# Maya Knox 
 
-**Maya Knox** é um componente personalizado avançado para o Home Assistant que fornece um sistema de alarme inteligente com foco em notificações ricas e uma interface visual amigável.
+**Maya Knox** é um componente personalizado avançado para o Home Assistant que fornece um sistema de alarme inteligente com foco em notificações ricas, automação de câmeras e uma interface visual premium.
 
-![Maya Knox Logo](assets/logo.png)
+![Maya Knox Card v1.1.8](www/security_robot.png)
 
-##  Funcionalidades
+## 🚀 Funcionalidades
 
-*   **Sistema de Alarme Completo**: Suporte para estados Armado (Casa), Armado (Fora) e Desarmado.
+*   **Sistema de Alarme Completo**: Suporte para estados Armado (Casa), Armado (Rua) e Desarmado.
 *   **Notificações Ricas**: Envia notificações para o aplicativo do Home Assistant com **snapshots de câmeras** anexados automaticamente quando o alarme dispara.
+*   **Gestão de Câmeras Internas**: Ativa automaticamente a detecção de movimento das câmeras internas apenas no modo **Armado (Rua)**, protegendo sua privacidade enquanto você está em casa.
 *   **Configuração via UI**: Todo o setup é feito através da interface nativa do Home Assistant (Config Flow), sem necessidade de editar arquivos YAML.
-*   **Monitoramento Inteligente**: Permite definir sensores de perímetro (externos) e sensores internos.
-*   **Cartão Lovelace Personalizado**: Inclui um cartão frontend animado que muda de cor e pulsa quando o alarme está disparado.
+*   **Monitoramento Inteligente**: Permite definir sensores de perímetro (externos) e sensores internos (incluindo câmeras).
+*   **Cartão Lovelace Premium (v1.1.8)**: Inclui um cartão frontend animado com links sociais clicáveis, log de eventos e feedback visual pulsante.
+*   **Anti-Cache Robusto**: Utiliza embedding Base64 para garantir que a imagem correta do ícone seja exibida, sem conflitos de cache do navegador.
 
-##  Instalação
+## 📦 Instalação
 
-1.  Copie a pasta maya_knox para o diretório custom_components do seu Home Assistant.
-2.  Reinicie o Home Assistant.
+### Via HACS (Recomendado)
+1. Vá para **HACS** > **Integrações**.
+2. Clique nos três pontos no canto superior direito e selecione **Repositórios Personalizados**.
+3. Adicione a URL: `https://github.com/klausterra/maya_knox`
+4. Selecione a categoria **Integração**.
+5. Clique em **ADICIONAR**.
+6. Procure por **Maya Knox** e instale.
+7. Reinicie o Home Assistant.
 
-##  Configuração
+### Manual
+1. Copie a pasta `maya_knox` para o diretório `custom_components` do seu Home Assistant.
+2. Reinicie o Home Assistant.
 
-1.  No Home Assistant, vá para **Configurações** > **Dispositivos e Serviços**.
-2.  Clique em **Adicionar Integração**.
-3.  Pesquise por **Maya Knox**.
-4.  Preencha o formulário de configuração:
-    *   **Sensores de Perímetro**: Selecione os sensores de porta/janela ou câmeras que monitoram a área externa.
-    *   **Sensores Internos**: Selecione sensores de movimento internos.
-    *   **Moradores**: Selecione as pessoas para rastreamento de presença.
-    *   **Ativar Armar Automático**: Se ativado, o sistema armará automaticamente (Ausente) quando todos os moradores saírem e desarmará quando o primeiro chegar.
+## ⚙️ Configuração
 
-## Cartão Frontend (Lovelace)
+1. No Home Assistant, vá para **Configurações** > **Dispositivos e Serviços**.
+2. Clique em **Adicionar Integração**.
+3. Pesquise por **Maya Knox**.
+4. Siga as instruções:
+    *   **Sensores de Perímetro**: Portas/janelas e câmeras externas.
+    *   **Sensores Internos**: Sensores de movimento e câmeras internas.
+    *   **Automação Alexa**: Defina as frases e dispositivos para anúncios automáticos.
+    *   **Armar Automático**: Sistema inteligente baseado na presença dos moradores (GPS).
 
-O componente inclui um cartão personalizado para exibir o status do alarme.
+## 🖥️ Cartão Frontend (Lovelace)
 
-### Adicionando o Recurso
+O cartão é instalado automaticamente como um recurso. Se precisar adicionar manualmente:
+*   URL: `/maya_knox_www/maya-knox-card.js`
+*   Tipo: `JavaScript Module`
 
-O recurso deve ser adicionado automaticamente. Se não for, adicione manualmente em **Painéis** > **Três pontos** > **Recursos**:
-*   URL: /maya_knox_www/maya-knox-card.js
-*   Tipo: JavaScript Module
-
-### Exemplo de Uso no Dashboard
-
-`yaml
+### Exemplo de Configuração
+```yaml
 type: custom:maya-knox-card
-entity: alarm_control_panel.maya_knox_alarm
-name: Alarme Principal
-`
+entity: alarm_control_panel.maya_knox_portal
+name: Central Maya Knox
+```
 
-## Como Funciona (Arquitetura)
+## 🛠️ Arquitetura
 
-O sistema é composto por três partes principais que interagem entre si:
-
-### 1. Painel de Controle (larm_control_panel.py)
-É o "cérebro" do sistema. Ele gerencia os estados do alarme (Armado/Desarmado/Disparado).
-*   **Diferencial**: Quando o alarme dispara (TRIGGERED), ele verifica se há câmeras configuradas na lista de "Sensores de Perímetro". Se houver, ele captura uma imagem e a envia junto com a notificação de alerta para o seu celular.
-
-### 2. Fluxo de Configuração (config_flow.py)
-Gerencia a interface de configuração inicial. Ele coleta as listas de sensores e preferências do usuário e as armazena para uso pelo Painel de Controle.
-
-### 3. Interface Visual (www/maya-knox-card.js)
-Um cartão personalizado escrito em JavaScript.
-*   **Visual**: Exibe o ícone do robô Maya Knox.
-*   **Feedback Visual**:
-    *    **Verde**: Desarmado.
-    *    **Vermelho**: Armado.
-    *    **Laranja Pulsante**: Disparado (Alerta Visual).
-*   **Interação**: Ao clicar no cartão, ele abre o diálogo de "Mais Informações" do alarme para permitir armar/desarmar.
+O sistema é otimizado para performance e privacidade:
+1. **Privacidade**: Câmeras internas têm detecção de movimento desativada automaticamente nos modos "Casa" ou "Desarmado".
+2. **Confiabilidade**: Ícones embutidos em Base64 garantem visual consistente mesmo em redes instáveis ou com cache agressivo.
+3. **Escalabilidade**: Suporta múltiplos serviços de notificação (Mobile App e Alexa) simultaneamente.
 
 ---
 Desenvolvido por KlausTerra.
+Instagran: [@mayahome.oficial](https://www.instagram.com/mayahome.oficial) | Web: [www.mayahome.ia.br](https://www.mayahome.ia.br)
