@@ -36,7 +36,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         await hass.http.async_register_static_paths(
             [
                 StaticPathConfig(url_path='/maya_knox_www', path=www_path, cache_headers=False),
-                StaticPathConfig(url_path='/maya_knox_assets', path=brand_path, cache_headers=True),
+                StaticPathConfig(url_path='/maya_knox_static', path=brand_path, cache_headers=False),
             ]
         )
     except Exception as e:

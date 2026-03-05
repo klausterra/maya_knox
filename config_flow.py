@@ -47,7 +47,7 @@ class MayaKnoxOptionsFlowHandler(OptionsFlow):
 
         return vol.Schema({
             vol.Required("sensores_perimetro", default=_ensure_list(defaults.get("sensores_perimetro", []))): selector.EntitySelector(selector.EntitySelectorConfig(multiple=True, domain=["binary_sensor", "camera"])),
-            vol.Required("sensores_internos", default=_ensure_list(defaults.get("sensores_internos", []))): selector.EntitySelector(selector.EntitySelectorConfig(multiple=True, domain="binary_sensor")),
+            vol.Required("sensores_internos", default=_ensure_list(defaults.get("sensores_internos", []))): selector.EntitySelector(selector.EntitySelectorConfig(multiple=True, domain=["binary_sensor", "camera"])),
             vol.Optional("sensor_campainha", default=_ensure_list(defaults.get("sensor_campainha", []))): selector.EntitySelector(selector.EntitySelectorConfig(multiple=True, domain=["binary_sensor", "sensor"])),
             vol.Required("entidade_sirene_alarme", default=_ensure_list(defaults.get("entidade_sirene_alarme", defaults.get("sirene", [])))): selector.EntitySelector(selector.EntitySelectorConfig(multiple=True, domain=["switch", "siren", "light"])),
             vol.Optional("entidade_chime_campainha", default=_ensure_list(defaults.get("entidade_chime_campainha", []))): selector.EntitySelector(selector.EntitySelectorConfig(multiple=True, domain=["switch", "siren", "light"])),

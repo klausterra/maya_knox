@@ -1,15 +1,19 @@
-console.info("%c MAYA KNOX PORTAL %c 1.1.0 ", "color: white; background: #00d4ff; font-weight: 700;", "color: #00d4ff; background: #1c1c1c; font-weight: 700;");
+console.info("%c MAYA KNOX PORTAL %c 1.1.8 ", "color: white; background: #00d4ff; font-weight: 700;", "color: #00d4ff; background: #1c1c1c; font-weight: 700;");
 
 class MayaKnoxCard extends HTMLElement {
   set hass(hass) {
     const entityId = this.config.entity;
     const state = hass.states[entityId];
     const name = this.config.name || "Maya Knox";
-    const logoUrl = "/maya_knox_assets/logo.png?v=10";
+    const logoUrl = state?.attributes?.entity_picture || "/maya_knox_static/security_robot.png?v=1.1.8";
 
     if (!this.content) {
       this.innerHTML = `
         <ha-card style="overflow: hidden; border-radius: 15px; background: #1c1c1c; color: white; padding: 16px; text-align: center; position: relative;">
+            <style>
+                .maya-link { color: #888; text-decoration: none; display: flex; align-items: center; gap: 4px; transition: color 0.3s; }
+                .maya-link:hover { color: #00d4ff; }
+            </style>
             <div id="btn-settings" style="position: absolute; top: 10px; right: 10px; cursor: pointer; color: #888; transition: color 0.3s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='#888'">
                 <ha-icon icon="mdi:cog"></ha-icon>
             </div>
@@ -46,6 +50,18 @@ class MayaKnoxCard extends HTMLElement {
                   <span style="font-size: 10px; margin-top: 4px; font-weight: bold;">DESARMAR</span>
               </div>
             </div>
+
+            <div style="margin-top: 15px; padding: 10px; border-top: 1px solid #333; display: flex; justify-content: space-between; align-items: center; font-size: 10px;">
+                <a href="https://www.instagram.com/mayahome.oficial" target="_blank" class="maya-link">
+                    <ha-icon icon="mdi:instagram" style="--mdc-icon-size: 14px;"></ha-icon>
+                    <span>@mayahome.oficial</span>
+                </a>
+                <a href="https://www.mayahome.ia.br" target="_blank" class="maya-link">
+                    <ha-icon icon="mdi:web" style="--mdc-icon-size: 14px;"></ha-icon>
+                    <span>www.mayahome.ia.br</span>
+                </a>
+            </div>
+            <div style="position: absolute; bottom: 2px; right: 5px; font-size: 8px; color: #444;">v1.1.8</div>
         </ha-card>
       `;
       this.content = this.querySelector("ha-card");
