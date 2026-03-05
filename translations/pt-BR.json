@@ -5,11 +5,21 @@
                 "title": "Instalação do Maya Knox",
                 "description": "Defina as áreas de segurança iniciais.",
                 "data": {
-                    "sensores_perimetro": "Zona Externa (Câmeras Frigate / Portões)",
+                    "sensores_perimetro": "Zona Externa (Câmeras / Portões)",
                     "sensores_internos": "Zona Interna (Sensores de Presença)",
                     "sensor_campainha": "Sensores de Campainha (ex: Zona do Portão)",
+                    "entidade_sirene_alarme": "Sirene do Alarme (Entidade)",
+                    "entidade_chime_campainha": "Campainha / Chime (Entidade)",
                     "moradores": "Celulares para Rastreador GPS",
-                    "notify_service_name": "Serviço de Notificação (ex: notify.mobile_app_iphone)",
+                    "rastreadores_omada": "Rastreadores Omada (Device Trackers)",
+                    "notify_servicos_campainha": "Notificação Mobile: Campainha",
+                    "notify_servicos_sirene": "Notificação Mobile: Alarme",
+                    "alexa_notify_servicos_campainha": "Alexa para Notificação: Campainha",
+                    "alexa_notify_servicos_alarme": "Alexa para Notificação: Alarme",
+                    "alexa_msg_campainha": "Mensagem Alexa (Campainha)",
+                    "alexa_msg_alarme": "Mensagem Alexa (Alarme)",
+                    "alexa_campainha_som_id": "ID do Som Alexa (Campainha)",
+                    "alexa_campainha_som_dispositivos": "Som de Campainha (Alexa Speak/Announce)",
                     "ativar_auto_armar": "Armar sistema automaticamente ao sair?"
                 }
             }
@@ -27,10 +37,40 @@
                     "sensores_perimetro": "Zona Externa (Câmeras / Portões)",
                     "sensores_internos": "Zona Interna (Sensores de Presença)",
                     "sensor_campainha": "Sensores de Campainha (ex: Zona do Portão)",
+                    "entidade_sirene_alarme": "Sirene do Alarme (Entidade)",
+                    "entidade_chime_campainha": "Campainha / Chime (Entidade)",
                     "moradores": "Celulares para Rastreador GPS",
-                    "notify_service_name": "Serviço de Notificação (ex: notify.mobile_app_iphone)",
+                    "rastreadores_omada": "Rastreadores Omada (Device Trackers)",
+                    "notify_servicos_campainha": "Notificação Mobile: Campainha",
+                    "notify_servicos_sirene": "Notificação Mobile: Alarme",
+                    "alexa_notify_servicos_campainha": "Alexa para Notificação: Campainha",
+                    "alexa_notify_servicos_alarme": "Alexa para Notificação: Alarme",
+                    "alexa_msg_campainha": "Mensagem Alexa (Campainha)",
+                    "alexa_msg_alarme": "Mensagem Alexa (Alarme)",
+                    "alexa_campainha_som_id": "ID do Som Alexa (Campainha)",
+                    "alexa_campainha_som_dispositivos": "Som de Campainha (Alexa Speak/Announce)",
                     "ativar_auto_armar": "Armar sistema automaticamente ao sair?"
                 }
+            }
+        }
+    },
+    "services": {
+        "test_campainha": {
+            "name": "Testar Campainha",
+            "description": "Simula o acionamento da campainha para testar notificações e chime físico."
+        },
+        "test_alarme": {
+            "name": "Testar Alarme",
+            "description": "Simula um disparo do alarme para testar notificações e sirene física."
+        }
+    },
+    "entity": {
+        "button": {
+            "test_campainha": {
+                "name": "Testar Campainha"
+            },
+            "test_alarme": {
+                "name": "Testar Alarme"
             }
         }
     }

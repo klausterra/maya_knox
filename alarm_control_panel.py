@@ -1,4 +1,4 @@
-from homeassistant.components.alarm_control_panel import AlarmControlPanelEntity, AlarmControlPanelEntityFeature, AlarmControlPanelState
+﻿from homeassistant.components.alarm_control_panel import AlarmControlPanelEntity, AlarmControlPanelEntityFeature, AlarmControlPanelState
 import os
 import json
 import logging
@@ -8,9 +8,11 @@ _LOGGER = logging.getLogger(__name__)
 DOMAIN = "maya_knox"
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
-    config_data = config_entry.options or config_entry.data
+    config_data = {**config_entry.data, **config_entry.options}
     async_add_entities([MayaKnoxAlarm("Maya Knox Portal", config_data)])
 
+from homeassistant.helpers import entity_registry as er
+from homeassistant.exceptions import HomeAssistantError
 from homeassistant.util import dt as dt_util
 
 class MayaKnoxAlarm(AlarmControlPanelEntity):
@@ -27,10 +29,10 @@ class MayaKnoxAlarm(AlarmControlPanelEntity):
         self._sensor_disparo = None
         self._logs = []
         self._log_file = None
-        # O _log_file será definido no async_added_to_hass quando tivermos acesso ao caminho da config
+        # O _log_file serÃ¡ definido no async_added_to_hass quando tivermos acesso ao caminho da config
         
     async def async_added_to_hass(self):
-        """Carregar logs quando a entidade é adicionada."""
+        """Carregar logs quando a entidade Ã© adicionada."""
         await super().async_added_to_hass()
         self._log_file = self.hass.config.path("maya_knox_logs.json")
         self._logs = await self.hass.async_add_executor_job(self._load_logs)
@@ -89,7 +91,7 @@ class MayaKnoxAlarm(AlarmControlPanelEntity):
         self._attr_state = AlarmControlPanelState.TRIGGERED
         s_id = self.hass.data.get(DOMAIN, {}).get("ultimo_disparo", "Desconhecido")
         s_state = self.hass.states.get(s_id)
-        nome_zona = s_state.attributes.get("friendly_name", s_id) if s_state else "Zona Incerta"
+        nome_zona = s_state.attributes.get("friendly_name", s_id) if s_state else s_id
         self._sensor_disparo = nome_zona
         
         self._add_log("DISPARO", nome_zona)
@@ -98,7 +100,7 @@ class MayaKnoxAlarm(AlarmControlPanelEntity):
         await self._enviar_notificacao("🚨 INVASÃO!", f"Disparo em: {nome_zona}", disparo=True)
 
     async def _controlar_sirene(self, ligar=True):
-        ent = self._config_data.get("sirene", [])
+        ent = self._config_data.get("entidade_sirene_alarme")
         if ent: await self.hass.services.async_call("homeassistant", "turn_on" if ligar else "turn_off", {"entity_id": ent})
 
     async def async_alarm_disarm(self, code=None):
@@ -125,14 +127,14 @@ class MayaKnoxAlarm(AlarmControlPanelEntity):
         dados = {"title": titulo, "message": msg, "data": {}}
         if disparo:
             dados["data"].update({
-                "push": {
+                "push": { "category": "ALARM",
                     "sound": {
                         "name": "default",
                         "critical": 1,
                         "volume": 1.0
                     }
                 },
-                "ttl": 0,
+                "channel": "Alarm", "ttl": 0,
                 "priority": "high",
                 "color": "red"
             })
@@ -141,20 +143,62 @@ class MayaKnoxAlarm(AlarmControlPanelEntity):
                 dados["data"]["image"] = f"/api/camera_proxy/{cam}"
                 dados["data"]["entity_id"] = cam
         
-        notify_service = self._config_data.get("notify_service_name", "notify.notify")
-        domain, service = notify_service.split(".", 1) if "." in notify_service else ("notify", "notify")
+        notify_services = self._config_data.get("notify_servicos_sirene", self._config_data.get("notify_service_name", []))
+        if isinstance(notify_services, str): notify_services = [notify_services]
+        if not notify_services: notify_services = ["notify.notify"]
         
-        await self.hass.services.async_call(domain, service, dados)
         
-        alexa_service = self._config_data.get("alexa_notify_service", "")
-        if alexa_service and disparo:
+        for ns in notify_services:
+            domain, service = ns.split(".", 1) if "." in ns else ("notify", ns)
+            await self.hass.services.async_call(domain, service, dados)
+        
+        alexa_services = self._config_data.get("alexa_notify_servicos_alarme", self._config_data.get("alexa_notify_service", []))
+        if isinstance(alexa_services, str): alexa_services = [alexa_services] if alexa_services else []
+        if alexa_services and disparo:
+            _LOGGER.info(f"Maya Knox: Iniciando notificações Alexa para alarme: {alexa_services}")
             alexa_msg_template = self._config_data.get("alexa_msg_alarme", "Atenção, o alarme foi disparado! {msg}")
             zona_nome = self._sensor_disparo if self._sensor_disparo else "Zona Desconhecida"
             mensagem_alexa = alexa_msg_template.replace("{msg}", msg).replace("{zona}", zona_nome)
             
-            a_domain, a_service = alexa_service.split(".", 1) if "." in alexa_service else ("notify", alexa_service.replace("notify.", ""))
             alexa_dados = {
                 "message": mensagem_alexa,
-                "data": {"type": "tts"}
             }
-            await self.hass.services.async_call(a_domain, a_service, alexa_dados)
+
+            for alexa_service in alexa_services:
+                _LOGGER.info(f"Maya Knox: Tentando notificar Alexa (Alarme): {alexa_service}")
+                try:
+                    # O serviço pode ser um nome de serviço ou uma entidade notify.*
+                    if alexa_service.startswith('notify.'):
+                        domain, service_name = alexa_service.split('.', 1)
+                        
+                        # Se existe o serviço específico (ex: formato legado ou alexa_media por dispositivo)
+                        if self.hass.services.has_service(domain, service_name):
+                            await self.hass.services.async_call(
+                                domain, 
+                                service_name, 
+                                {"message": mensagem_alexa, "data": {"type": "announce"}},
+                                blocking=True
+                            )
+                        else:
+                            # Caso contrário, usamos o serviço unificado notify.send_message (alexa_devices oficial)
+                            await self.hass.services.async_call(
+                                "notify",
+                                "send_message",
+                                {
+                                    "entity_id": alexa_service,
+                                    "message": mensagem_alexa
+                                },
+                                blocking=True
+                            )
+                        _LOGGER.info(f"Maya Knox: Notificação de alarme enviada para {alexa_service}")
+                    elif self.hass.services.has_service('notify', 'alexa_media'):
+                        # Legado (alexa_media via serviço centralizado)
+                        alexa_media_dados = {
+                            'message': mensagem_alexa,
+                            'data': {'type': 'announce', 'method': 'all'},
+                            'target': [alexa_service]
+                        }
+                        await self.hass.services.async_call('notify', 'alexa_media', alexa_media_dados)
+                        _LOGGER.info(f"Maya Knox: Notificação de alarme enviada via alexa_media para {alexa_service}")
+                except Exception as e:
+                    _LOGGER.error(f"Maya Knox: Erro ao enviar para Alexa {alexa_service}: {e}")
